@@ -1,6 +1,9 @@
 # FROM pytorch/pytorch:1.11.0-cuda11.0-cudnn8-devel
 # https://hub.docker.com/layers/pytorch/pytorch/1.11.0-cuda11.3-cudnn8-devel/images/sha256-9bfcfa72b6b244c1fbfa24864eec97fb29cfafc065999e9a9ba913fa1e690a02?context=explore
-FROM nvidia/cuda:${11.0}-cudnn${8}-devel-ubuntu18.04
+ENV CUDA_VERSION=11.0
+ENV CUDNN_VERSION=8
+ARG CUDA_VERSION
+FROM nvidia/cuda:${CUDA_VERSION}-cudnn${CUDNN_VERSION}-devel-ubuntu18.04
 
 ### apt support
 RUN apt-get update -y \
@@ -49,8 +52,8 @@ RUN apt install -y libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
     && apt install -y libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION}
 
 ### python support
-RUN conda install scipy pytorch torchvision cudatoolkit=${CUDA} -c pytorch -y \
-RUN pip install scikit-learn pyyaml editdistance tensorboard_logger tensorboard pandas pymongo
+RUN conda install -c pytorch pytorch torchvision torchaudio cudatoolkit=${CUDA_VERSION} -y
+RUN pip install scipy scikit-learn pyyaml editdistance tensorboard_logger tensorboard pandas pymongo
 RUN pip install py3nvml sentencepiece unidecode soundfile librosa
 RUN pip install https://github.com/kpu/kenlm/archive/master.zip
 RUN pip install numba==0.48
