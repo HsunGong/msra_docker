@@ -1,4 +1,5 @@
 FROM pytorch/pytorch:1.11.0-cuda11.0-cudnn8-devel
+# https://hub.docker.com/layers/pytorch/pytorch/1.11.0-cuda11.3-cudnn8-devel/images/sha256-9bfcfa72b6b244c1fbfa24864eec97fb29cfafc065999e9a9ba913fa1e690a02?context=explore
 
 ### apt support
 RUN apt-get update -y \
