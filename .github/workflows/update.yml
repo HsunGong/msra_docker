@@ -24,10 +24,8 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
-      - name: Publish to Docker Repository
-        uses: elgohr/Publish-Docker-Github-Action@v4
-        with:
-          name: hsungong/msra_docker
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag hsungong/msra_docker:$(date +%s)
+      - name: Docker Push
+        run: docker push hsungong/msra_docker
 
