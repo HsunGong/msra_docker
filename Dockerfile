@@ -1,5 +1,6 @@
-FROM pytorch/pytorch:1.11.0-cuda11.0-cudnn8-devel
+# FROM pytorch/pytorch:1.11.0-cuda11.0-cudnn8-devel
 # https://hub.docker.com/layers/pytorch/pytorch/1.11.0-cuda11.3-cudnn8-devel/images/sha256-9bfcfa72b6b244c1fbfa24864eec97fb29cfafc065999e9a9ba913fa1e690a02?context=explore
+FROM nvidia/cuda:${11.0}-cudnn${8}-devel-ubuntu18.04
 
 ### apt support
 RUN apt-get update -y \
@@ -10,20 +11,21 @@ RUN apt-get update -y \
  && apt-get install -y -q libibverbs-dev \
  && apt-get install -y -q vim
 
-### CUDA SUPPORT
-ENV CUDA_HOME=/usr/local/cuda
-ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
-ENV NCCL_VERSION=2.8.3-1+cuda11.0
-RUN apt install -y libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
-    && apt install -y libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION}
+### miniconda
+# Install miniconda and set up python
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
+ && chmod +x /miniconda.sh \
+ && /miniconda.sh -b -p /miniconda \
+ && rm /miniconda.sh
+ENV PATH=/miniconda/bin:$PATH
+RUN /miniconda/bin/conda install -y conda-build \
+ && /miniconda/bin/conda create -y --name TorchSpeech python=3.8 \
+ && /miniconda/bin/conda clean -ya
 
-### python support
-RUN pip install scikit-learn pyyaml editdistance tensorboard_logger tensorboard pandas pymongo
-RUN pip install py3nvml sentencepiece unidecode soundfile librosa
-RUN pip install https://github.com/kpu/kenlm/archive/master.zip
-RUN pip install numba==0.48
-RUN HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install --no-cache-dir horovod
-RUN git clone https://github.com/SeanNaren/warp-ctc && cd warp-ctc && mkdir build && cd build && cmake .. && make && cd ../pytorch_binding && python setup.py install
+ENV CONDA_DEFAULT_ENV=TorchSpeech
+ENV CONDA_PREFIX=/miniconda/envs/$CONDA_DEFAULT_ENV
+ENV PATH=$CONDA_PREFIX/bin:$PATH
+ENV CONDA_AUTO_UPDATE_CONDA=false
 
 # Install Open MPI
 ENV OPENMPI_VERSIONBASE=4.1
@@ -38,3 +40,19 @@ RUN mkdir /tmp/openmpi && \
     make install && \
     ldconfig && \
     rm -rf /tmp/openmpi
+
+### CUDA SUPPORT
+ENV CUDA_HOME=/usr/local/cuda
+ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
+ENV NCCL_VERSION=2.8.3-1+cuda11.0
+RUN apt install -y libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
+    && apt install -y libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION}
+
+### python support
+RUN conda install scipy pytorch torchvision cudatoolkit=${CUDA} -c pytorch -y \
+RUN pip install scikit-learn pyyaml editdistance tensorboard_logger tensorboard pandas pymongo
+RUN pip install py3nvml sentencepiece unidecode soundfile librosa
+RUN pip install https://github.com/kpu/kenlm/archive/master.zip
+RUN pip install numba==0.48
+RUN HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install --no-cache-dir horovod
+RUN git clone https://github.com/SeanNaren/warp-ctc && cd warp-ctc && mkdir build && cd build && cmake .. && make && cd ../pytorch_binding && python setup.py install
