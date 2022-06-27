@@ -5,7 +5,6 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 
 # apt list -a xxx
 RUN apt-key del 7fa2af80 \
-    && apt install -y curl \
     && curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb \
     && dpkg -i cuda-keyring_1.0-1_all.deb \
     && rm -f cuda-keyring_1.0-1_all.deb \
