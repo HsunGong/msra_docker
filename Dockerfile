@@ -22,17 +22,15 @@ RUN apt-get install --no-install-recommends -y  --allow-change-held-packages apt
 
 # Install miniconda and set up python
 ENV PATH=/miniconda/bin:$PATH
-ENV CONDA_DEFAULT_ENV=torch
-ENV CONDA_PREFIX=/miniconda/envs/$CONDA_DEFAULT_ENV
-ENV PATH=$CONDA_PREFIX/bin:$PATH
+#ENV CONDA_PREFIX=/miniconda/envs/$CONDA_DEFAULT_ENV
+#ENV PATH=$CONDA_PREFIX/bin:$PATH
 ENV CONDA_AUTO_UPDATE_CONDA=false
 
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh 1>/dev/null \
     && chmod +x /miniconda.sh \
     && /miniconda.sh -b -p /miniconda \
     && rm /miniconda.sh \
-    && /miniconda/bin/conda install -y conda-build \
-    && /miniconda/bin/conda create -y --name torch python=3.8 \
+    && /miniconda/bin/conda install -y conda-build mamba python=3.8 \
     && /miniconda/bin/conda clean -ya
 
 # Install Open MPI
@@ -40,7 +38,7 @@ ENV OPENMPI_VERSIONBASE=4.1
 ENV OPENMPI_VERSION=${OPENMPI_VERSIONBASE}.0
 RUN mkdir /tmp/openmpi && \
     cd /tmp/openmpi && \
-    wget https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
+    wget https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz 1>/dev/null && \
     tar zxf openmpi-${OPENMPI_VERSION}.tar.gz && \
     cd openmpi-${OPENMPI_VERSION} && \
     ./configure --enable-orterun-prefix-by-default && \
