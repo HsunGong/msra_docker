@@ -25,7 +25,7 @@ ENV PATH=/miniconda/bin:$PATH
 #ENV PATH=$CONDA_PREFIX/bin:$PATH
 ENV CONDA_AUTO_UPDATE_CONDA=false
 
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh 2>&1 1>/dev/null \
+RUN wget --no-verbose -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
     && chmod +x /miniconda.sh \
     && /miniconda.sh -b -p /miniconda 2>&1 1>/dev/null \
     && rm /miniconda.sh \
@@ -37,7 +37,7 @@ ENV OPENMPI_VERSIONBASE=4.1
 ENV OPENMPI_VERSION=${OPENMPI_VERSIONBASE}.0
 RUN mkdir /tmp/openmpi && \
     cd /tmp/openmpi && \
-    wget https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz 2>&1 1>/dev/null && \
+    wget --no-verbose -q https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
     tar zxf openmpi-${OPENMPI_VERSION}.tar.gz && \
     cd openmpi-${OPENMPI_VERSION} && \
     ./configure --enable-orterun-prefix-by-default 2>&1 1>/dev/null && \
@@ -48,21 +48,21 @@ RUN mkdir /tmp/openmpi && \
 
 ARG CUDA
 ENV CUDA_HOME=/usr/local/cuda
-RUN conda install pytorch torchvision torchaudio cudatoolkit=${CUDA} -c pytorch 2>&1 1>/dev/null \
-    && conda clean -ya 2>&1 1>/dev/null \
-    && pip install scipy pyyaml editdistance tensorboard_logger tensorboard pandas pymongo \
-    && HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install --no-cache-dir horovod \
-    && pip install py3nvml sentencepiece unidecode soundfile librosa \
+RUN conda install pytorch torchvision torchaudio cudatoolkit=${CUDA} -c pytorch \
+    && conda clean -ya \
+    && pip --no-cache-dir install scipy pyyaml editdistance tensorboard_logger tensorboard pandas pymongo \
+    && pip --no-cache-dir install py3nvml sentencepiece unidecode soundfile librosa \
     && pip install https://github.com/kpu/kenlm/archive/master.zip \
-    && pip install numba==0.48 \
-    && git clone https://github.com/SeanNaren/warp-ctc && cd warp-ctc && mkdir build && cd build && cmake .. 2>&1 1>/dev/null && make 2>&1 1>/dev/null && cd ../pytorch_binding && python setup.py install \
-    && pip install fast_rnnt
+    && pip --no-cache-dir install numba==0.48
+
+RUN HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL HOROVOD_WITH_PYTORCH=1 pip install horovod[pytorch]
+# RUN HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install --no-cache-dir horovod
+# && git clone https://github.com/SeanNaren/warp-ctc && cd warp-ctc && mkdir build && cd build && cmake .. 2>&1 1>/dev/null && make 2>&1 1>/dev/null && cd ../pytorch_binding && python setup.py install \
 
 # export FT_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release -DFT_WITH_CUDA=OFF"
 # export FT_MAKE_ARGS="-j"
 RUN cd /code \
     && git clone https://github.com/danpovey/fast_rnnt.git \
     && cd fast_rnnt \
-    && conda activate torch \
     && python setup.py install \
     && python3 -c "import fast_rnnt; print(fast_rnnt.__version__)"
