@@ -32,23 +32,10 @@ RUN wget --no-verbose -q https://repo.continuum.io/miniconda/Miniconda3-latest-L
     && /miniconda/bin/conda install -y conda-build python=3.8 \
     && /miniconda/bin/conda clean -ya
 
-# Install Open MPI
-ENV OPENMPI_VERSIONBASE=4.1
-ENV OPENMPI_VERSION=${OPENMPI_VERSIONBASE}.0
-RUN mkdir /tmp/openmpi && \
-    cd /tmp/openmpi && \
-    wget --no-verbose -q https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
-    tar zxf openmpi-${OPENMPI_VERSION}.tar.gz && \
-    cd openmpi-${OPENMPI_VERSION} && \
-    ./configure --enable-orterun-prefix-by-default 2>&1 1>/dev/null && \
-    make -j $(nproc) all 2>&1 1>/dev/null && \
-    make install 2>&1 1>/dev/null && \
-    ldconfig && \
-    rm -rf /tmp/openmpi
-
 ARG CUDA
 ENV CUDA_HOME=/usr/local/cuda
-RUN conda install pytorch torchvision torchaudio cudatoolkit=${CUDA} -c pytorch \
+RUN pip install torch torchvision torchaudio cudatoolkit=${CUDA} --extra-index-url https://download.pytorch.org/whl/cu110 \
+    && conda install cudatoolkit=${CUDA} -c pytorch \
     && conda clean -ya \
     && pip --no-cache-dir install scipy pyyaml editdistance tensorboard_logger tensorboard pandas pymongo \
     && pip --no-cache-dir install py3nvml sentencepiece unidecode soundfile librosa \
@@ -66,3 +53,17 @@ RUN cd /code \
     && cd fast_rnnt \
     && python setup.py install \
     && python3 -c "import fast_rnnt; print(fast_rnnt.__version__)"
+
+# Install Open MPI
+ENV OPENMPI_VERSIONBASE=4.1
+ENV OPENMPI_VERSION=${OPENMPI_VERSIONBASE}.0
+RUN mkdir /tmp/openmpi && \
+    cd /tmp/openmpi && \
+    wget --no-verbose -q https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSIONBASE}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
+    tar zxf openmpi-${OPENMPI_VERSION}.tar.gz && \
+    cd openmpi-${OPENMPI_VERSION} && \
+    ./configure --enable-orterun-prefix-by-default 2>&1 1>/dev/null && \
+    make -j $(nproc) all 2>&1 1>/dev/null && \
+    make install 2>&1 1>/dev/null && \
+    ldconfig && \
+    rm -rf /tmp/openmpi
