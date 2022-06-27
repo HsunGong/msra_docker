@@ -16,8 +16,15 @@ RUN apt-get update -y \
 # apt list -a xxx
 ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
 ENV NCCL_VERSION=2.8.3-1+cuda11.0
-RUN apt install -y libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
+RUN apt-key del 7fa2af80 \
+    && curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb \
+    && dpkg -i cuda-keyring_1.0-1_all.deb \
+    && rm -f cuda-keyring_1.0-1_all.deb \
+    && apt update \
+    && apt install -y libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
     && apt install -y libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION}
+
+
 
 # Install miniconda and set up python
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
