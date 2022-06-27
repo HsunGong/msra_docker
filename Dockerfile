@@ -13,17 +13,12 @@ RUN (apt-get update || echo "Warning") \
 
 ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
 ENV NCCL_VERSION=2.8.3-1+cuda11.0
-RUN apt-get install --no-install-recommends -y \
- apt-utils git ca-certificates bzip2 cmake tree htop bmon iotop g++ \
- libglib2.0-0 libsm6 libxext6 libxrender-dev sox \
- openmpi-bin jq openssh-server \
- infiniband-diags \
- libibverbs-dev \
- vim \
- libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
- libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION} \
- && apt-get autoclean \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get install --no-install-recommends -y  --allow-change-held-packages apt-utils git ca-certificates bzip2 cmake tree htop bmon iotop g++ \
+    && apt-get install --no-install-recommends -y  --allow-change-held-packages libglib2.0-0 libsm6 libxext6 libxrender-dev sox \
+    && apt-get install --no-install-recommends -y  --allow-change-held-packages openmpi-bin jq openssh-server infiniband-diags libibverbs-dev vim \
+    && apt-get install --no-install-recommends -y  --allow-change-held-packages libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION} \
+    && apt-get autoclean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda and set up python
 ENV PATH=/miniconda/bin:$PATH
@@ -33,12 +28,12 @@ ENV PATH=$CONDA_PREFIX/bin:$PATH
 ENV CONDA_AUTO_UPDATE_CONDA=false
 
 RUN wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda.sh \
- && chmod +x /miniconda.sh \
- && /miniconda.sh -b -p /miniconda \
- && rm /miniconda.sh \
- && /miniconda/bin/conda install -y conda-build \
- && /miniconda/bin/conda create -y --name torch python=3.8 \
- && /miniconda/bin/conda clean -ya
+    && chmod +x /miniconda.sh \
+    && /miniconda.sh -b -p /miniconda \
+    && rm /miniconda.sh \
+    && /miniconda/bin/conda install -y conda-build \
+    && /miniconda/bin/conda create -y --name torch python=3.8 \
+    && /miniconda/bin/conda clean -ya
 
 # Install Open MPI
 ENV OPENMPI_VERSIONBASE=4.1
