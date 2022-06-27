@@ -34,8 +34,9 @@ RUN wget --no-verbose -q https://repo.continuum.io/miniconda/Miniconda3-latest-L
 
 ARG CUDA
 ENV CUDA_HOME=/usr/local/cuda
-RUN pip install torch torchvision torchaudio cudatoolkit=${CUDA} --extra-index-url https://download.pytorch.org/whl/cu110 \
-    && conda install cudatoolkit=${CUDA} -c pytorch \
+RUN pip install torch==1.11.0 torchvision torchaudio cudatoolkit=${CUDA} --extra-index-url https://download.pytorch.org/whl/cu110 \
+    && python -c "import torch; print(torch.__version__, torch.__file__)" \
+    && conda install cudatoolkit==${CUDA} -c pytorch \
     && conda clean -ya \
     && pip --no-cache-dir install scipy pyyaml editdistance tensorboard_logger tensorboard pandas pymongo \
     && pip --no-cache-dir install py3nvml sentencepiece unidecode soundfile librosa \
