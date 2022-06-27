@@ -4,10 +4,9 @@ ARG CUDNN="8"
 FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 
 # apt list -a xxx
+# curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb
 RUN apt-key del 7fa2af80 \
-    && curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb \
-    && dpkg -i cuda-keyring_1.0-1_all.deb \
-    && rm -f cuda-keyring_1.0-1_all.deb \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub \
     && apt update
 
 ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
@@ -21,6 +20,7 @@ RUN apt-get install --no-install-recommends -y \
  vim \
  libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
  libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION} \
+ && apt-get autoclean \\
  && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda and set up python
