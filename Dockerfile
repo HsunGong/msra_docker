@@ -8,7 +8,7 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 RUN (apt-get update || echo "Warning") \
     && apt-get install --no-install-recommends -y wget curl \
     && apt-key del 7fa2af80 \
-    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/3bf863cc.pub \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub \
     && apt-get update
 
 ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
