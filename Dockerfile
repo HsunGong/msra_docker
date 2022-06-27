@@ -68,4 +68,3 @@ RUN cd /code \
     && conda activate torch \
     && python setup.py install \
     && python3 -c "import fast_rnnt; print(fast_rnnt.__version__)"
-
