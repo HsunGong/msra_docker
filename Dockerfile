@@ -48,9 +48,9 @@ RUN mkdir /tmp/openmpi && \
 
 ARG CUDA
 ENV CUDA_HOME=/usr/local/cuda
-RUN conda install -c pytorch -y scipy pytorch torchvision torchaudio cudatoolkit=${CUDA} 2>&1 1>/dev/null \
+RUN conda install pytorch torchvision torchaudio cudatoolkit=${CUDA} -c pytorch 2>&1 1>/dev/null \
     && conda clean -ya 2>&1 1>/dev/null \
-    && pip install pyyaml editdistance tensorboard_logger tensorboard pandas pymongo tensorflow \
+    && pip install scipy pyyaml editdistance tensorboard_logger tensorboard pandas pymongo \
     && HOROVOD_GPU_ALLREDUCE=NCCL HOROVOD_GPU_BROADCAST=NCCL pip install --no-cache-dir horovod \
     && pip install py3nvml sentencepiece unidecode soundfile librosa \
     && pip install https://github.com/kpu/kenlm/archive/master.zip \
