@@ -5,18 +5,17 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 
 # apt list -a xxx
 # curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb
-RUN (apt update || echo "Warning") \
-    && apt install --no-install-recommends -y wget curl \
+RUN (apt-get update || echo "Warning") \
+    && apt-get install --no-install-recommends -y wget curl \
     && apt-key del 7fa2af80 \
-    && curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb \
-    && dpkg -i cuda-keyring_1.0-1_all.deb \
-    && apt update
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/$distro/$arch/3bf863cc.pub \
+    && apt-get update
 
 ENV CUDNN_VERSION=8.0.4.30-1+cuda11.0
 ENV NCCL_VERSION=2.8.3-1+cuda11.0
 RUN apt-get install --no-install-recommends -y \
- apt-utils git curl ca-certificates bzip2 cmake tree htop bmon iotop g++ \
- libglib2.0-0 libsm6 libxext6 libxrender-dev sox wget \
+ apt-utils git ca-certificates bzip2 cmake tree htop bmon iotop g++ \
+ libglib2.0-0 libsm6 libxext6 libxrender-dev sox \
  openmpi-bin jq openssh-server \
  infiniband-diags \
  libibverbs-dev \
