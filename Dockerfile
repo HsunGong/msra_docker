@@ -20,7 +20,7 @@ RUN apt-get install --no-install-recommends -y \
  vim \
  libnccl2=${NCCL_VERSION} libnccl-dev=${NCCL_VERSION} \
  libcudnn8=${CUDNN_VERSION} libcudnn8-dev=${CUDNN_VERSION} \
- && apt-get autoclean \\
+ && apt-get autoclean \
  && rm -rf /var/lib/apt/lists/*
 
 # Install miniconda and set up python
