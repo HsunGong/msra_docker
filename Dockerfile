@@ -5,7 +5,7 @@ FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu18.04
 
 # apt list -a xxx
 # curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb
-RUN apt --allow-unauthenticated update \
+RUN (apt update || echo "Warning") \
     && apt install --no-install-recommends -y wget curl \
     && apt-key del 7fa2af80 \
     && curl -L -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb \
